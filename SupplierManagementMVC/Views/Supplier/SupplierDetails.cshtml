@@ -1,0 +1,66 @@
+﻿@model SupplierManagementMVC.ViewModels.SupplierCategoryCountryViewModel
+@{
+    ViewBag.Title = "SupplierDetails";
+}
+<br />
+<h2>Supplier Details</h2>
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Supplier.SupplierName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Supplier.SupplierName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Supplier.Afm)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Supplier.Afm)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Supplier.Email)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Supplier.Email)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Supplier.Address)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Supplier.Address)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Supplier.Telephone)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Supplier.Telephone)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Supplier.SupplierCategory.CategoryName)
+        </dt>
+        <dd>
+            @{ var categoryName = Model.SupplierCategories.Select(s => s.CategoryName).FirstOrDefault();}
+            @categoryName
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Supplier.SupplierCountry.CountryName)
+        </dt>
+        <dd>
+            @{ var countryName = Model.SupplierCountries.Select(s => s.CountryName).FirstOrDefault();}
+            @countryName
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Supplier.ActiveSupplier)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Supplier.ActiveSupplier)
+        </dd>
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "EditSupplier", new { id = Model.Supplier.ID }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+

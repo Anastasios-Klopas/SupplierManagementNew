@@ -1,0 +1,63 @@
+﻿@model SupplierManagementMVC.ViewModels.SupplierCategoryCountryViewModel
+@{
+    ViewBag.Title = "CreateSupplierForm";
+}
+<br />
+<h2>Add Supplier</h2>
+
+@using (Html.BeginForm("SaveSupplier", "Supplier"))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Supplier.SupplierName)
+        @Html.TextBoxFor(model => model.Supplier.SupplierName, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Supplier.SupplierName, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Supplier.Afm)
+        @Html.TextBoxFor(model => model.Supplier.Afm, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Supplier.Afm, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.Supplier.Email)
+        @Html.TextBoxFor(model => model.Supplier.Email, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Supplier.Email, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Supplier.Address)
+        @Html.TextBoxFor(model => model.Supplier.Address, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Supplier.Address, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Supplier.Telephone)
+        @Html.TextBoxFor(model => model.Supplier.Telephone, new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Supplier.Telephone, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Supplier.SupplierCategoryID)
+        @Html.DropDownListFor(model => model.Supplier.SupplierCategoryID, new SelectList(Model.SupplierCategories, "ID", "CategoryName"), "Select Category", new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Supplier.SupplierCategoryID, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Supplier.SupplierCountryID)
+        @Html.DropDownListFor(model => model.Supplier.SupplierCountryID, new SelectList(Model.SupplierCountries, "ID", "CountryName"), "Select Country", new { @class = "form-control" })
+        @Html.ValidationMessageFor(model => model.Supplier.SupplierCountryID, "", new { @class = "text-danger" })
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.Supplier.ActiveSupplier)
+        @*@Html.CheckBoxFor(model => model.Supplier.ActiveSupplier, new { @class = "form-control" })*@
+        @Html.CheckBoxFor(model => model.Supplier.ActiveSupplier, new { @class = "form-check-input" })
+        @Html.ValidationMessageFor(model => model.Supplier.ActiveSupplier, "", new { @class = "text-danger" })
+    </div>
+
+    @Html.HiddenFor(s => s.Supplier.ID)
+    <br />
+    <input type="submit" value="Save" class="btn btn-dark" />
+}
+
+@section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
