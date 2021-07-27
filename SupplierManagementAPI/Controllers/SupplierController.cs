@@ -9,6 +9,7 @@ using System.Web.Http;
 using System.Data.Entity;
 using System.Web.Http.Description;
 using System.Data.Entity.Infrastructure;
+using System.Net.Mail;
 
 namespace SupplierManagementAPI.Controllers
 {
@@ -38,6 +39,7 @@ namespace SupplierManagementAPI.Controllers
         {
             db.Suppliers.Add(supplier);
             db.SaveChanges();
+            WelcomeEmail(supplier.SupplierName, supplier.Email);
             return CreatedAtRoute("DefaultApi", new { id = supplier.ID }, supplier);
         }
         //update supplier
@@ -90,6 +92,15 @@ namespace SupplierManagementAPI.Controllers
         protected override void Dispose(bool disposing)
         {
             db.Dispose();
+        }
+        public static void WelcomeEmail(string supplierName,string supplierEmail)
+        {
+            MailMessage mailMessage = new MailMessage("", supplierEmail);
+            mailMessage.Subject = "Welcome to our Company";
+            mailMessage.Body = $"Welcome to our Company Mr/Mrs {supplierName}, we look forward to having a good cooperation";
+            SmtpClient client = new SmtpClient();
+            var a = client.Credentials;
+            client.Send(mailMessage);
         }
     }
 }
