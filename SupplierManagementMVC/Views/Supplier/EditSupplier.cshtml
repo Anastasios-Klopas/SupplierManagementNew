@@ -8,58 +8,148 @@
 @using (Html.BeginForm("SaveEditSupplier", "Supplier"))
 {
     @Html.AntiForgeryToken()
+    <div class="container">
 
-    <div class="form-group">
+        @if (@*true*@Model.Supplier.ActiveSupplier@*&& false*@)
+        {
+            <div class="row">
+                @Html.LabelFor(model => model.Supplier.SupplierName)
+
+            </div>
+            <div class="input-group">
+                @Html.EditorFor(model => model.Supplier.SupplierName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Supplier.SupplierName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="row">
+                @Html.LabelFor(model => model.Supplier.Afm)
+            </div>
+            <div class="input-group">
+                @*@Html.EditorFor(model => model.Supplier.Afm, new { @class = "form-control",@type=  "text" })*@
+                @Html.EditorFor(model => model.Supplier.Afm, new { htmlAttributes = new { @class = "form-control", @type = "text" } })
+                @Html.ValidationMessageFor(model => model.Supplier.Afm, "", new { @class = "text-danger" })
+            </div>
+        }
+        else
+        {
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.Supplier.SupplierName)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Supplier.SupplierName)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Supplier.Afm)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Supplier.Afm)
+                </dd>
+            </dl>
+        }
         <div class="row">
-            @Html.LabelFor(model => model.Supplier.SupplierName)
+            @Html.LabelFor(model => model.Supplier.Email)
         </div>
-        <div class="row offset-1 col-10">@*offset ag\fhnei kenes sthles kai pianei 10 sthles*@
-            @Html.EditorFor(model => model.Supplier.SupplierName, new { @class = "form-control" })
-            @Html.ValidationMessageFor(model => model.Supplier.SupplierName, "", new { @class = "text-danger" })
+        <div class="input-group">
+            @Html.EditorFor(model => model.Supplier.Email, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Supplier.Email, "", new { @class = "text-danger" })
         </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.Supplier.Afm)
-        @Html.EditorFor(model => model.Supplier.Afm, new { @class = "form-control" })
-        @Html.ValidationMessageFor(model => model.Supplier.Afm, "", new { @class = "text-danger" })
-    </div>
+        <div class="row">
+            @Html.LabelFor(model => model.Supplier.Address)
+        </div>
+        <div class="input-group">
+            @Html.EditorFor(model => model.Supplier.Address, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Supplier.Address, "", new { @class = "text-danger" })
+        </div>
+        <div class="row">
+            @Html.LabelFor(model => model.Supplier.Telephone)
+        </div>
+        <div class="input-group">
+            @Html.EditorFor(model => model.Supplier.Telephone, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Supplier.Telephone, "", new { @class = "text-danger" })
+        </div>
+        <div class="row">
+            @Html.LabelFor(model => model.Supplier.SupplierCategoryID)
+        </div>
+        <div class="input-group">
+            @Html.DropDownListFor(model => model.Supplier.SupplierCategoryID, new SelectList(Model.SupplierCategories, "ID", "CategoryName"), "Select Category", new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Supplier.SupplierCategoryID, "", new { @class = "text-danger" })
+        </div>
+        <div class="row">
+            @Html.LabelFor(model => model.Supplier.SupplierCountryID)
+        </div>
+        <div class="input-group">
+            @Html.DropDownListFor(model => model.Supplier.SupplierCountryID, new SelectList(Model.SupplierCountries, "ID", "CountryName"), "Select Country", new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Supplier.SupplierCountryID, "", new { @class = "text-danger" })
+        </div>
+        <div class="row">
+            @Html.LabelFor(model => model.Supplier.ActiveSupplier)
+        </div>
+        <div class="input-group" id="active1">
+            @*@Html.CheckBoxFor(model => model.Supplier.ActiveSupplier, new { @class = "form-control" })*@
+            @Html.EditorFor(model => model.Supplier.ActiveSupplier, new { htmlAttributes = new { @class = "form-check-input" } })
+            @*@Html.ValidationMessageFor(model => model.Supplier.ActiveSupplier, "", new { @class = "text-danger" })*@
+        </div>
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.Supplier.Email)
-        @Html.EditorFor(model => model.Supplier.Email, new { @class = "form-control" })
-        @Html.ValidationMessageFor(model => model.Supplier.Email, "", new { @class = "text-danger" })
+        @Html.HiddenFor(s => s.Supplier.ID)
+        <br />
+        <input type="submit" value="Save" class="btn btn-dark" />
     </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.Supplier.Address)
-        @Html.EditorFor(model => model.Supplier.Address, new { @class = "form-control" })
-        @Html.ValidationMessageFor(model => model.Supplier.Address, "", new { @class = "text-danger" })
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.Supplier.Telephone)
-        @Html.EditorFor(model => model.Supplier.Telephone, new { @class = "form-control" })
-        @Html.ValidationMessageFor(model => model.Supplier.Telephone, "", new { @class = "text-danger" })
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.Supplier.SupplierCategoryID)
-        @Html.DropDownListFor(model => model.Supplier.SupplierCategoryID, new SelectList(Model.SupplierCategories, "ID", "CategoryName"), "Select Category", new { @class = "form-control" })
-        @Html.ValidationMessageFor(model => model.Supplier.SupplierCategoryID, "", new { @class = "text-danger" })
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.Supplier.SupplierCountryID)
-        @Html.DropDownListFor(model => model.Supplier.SupplierCountryID, new SelectList(Model.SupplierCountries, "ID", "CountryName"), "Select Country", new { @class = "form-control" })
-        @Html.ValidationMessageFor(model => model.Supplier.SupplierCountryID, "", new { @class = "text-danger" })
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(model => model.Supplier.ActiveSupplier)
-        @*@Html.CheckBoxFor(model => model.Supplier.ActiveSupplier, new { @class = "form-control" })*@
-        @Html.EditorFor(model => model.Supplier.ActiveSupplier, new { @class = "form-check-input" })
-        @Html.ValidationMessageFor(model => model.Supplier.ActiveSupplier, "", new { @class = "text-danger" })
-    </div>
-
-    @Html.HiddenFor(s => s.Supplier.ID)
-    <br />
-    <input type="submit" value="Save" class="btn btn-dark" />
 }
-
 @Html.ActionLink("Back to List", "Index")
 
+
+
+<script src="~/Scripts/jquery-3.4.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$(function () {
+        //    $("#active").click(function () {
+        //    $("#test1").click(function () {
+        //        var value1 = $(this).val();
+        //        console.log("sto check ths edit to id");
+        //        console.log(value1);
+        //    });
+        //});
+        $(function () {
+            //$("#active1").click(function () {
+            //    //var value2 = $(this).val();
+            //    var value2 = $(this).children().val();
+            //    console.log("sto div ths class input group");
+            //    console.log(value2);
+            //    console.log("tupes ?");
+            //    console.log(typeof(value2));
+            //    console.log("sto div ths class input group me parse int");
+            //    var value3 = parseInt(value2);
+            //    console.log(value3);
+            //    console.log("tupes ?");
+            //    console.log(typeof (value3));
+            //});
+
+            //$(".form-check-input").click(function () {
+            //    var value2 = $(this).val();
+            //    //var value2 = $(this).children().val();
+            //    console.log("sthn Html.EditFor sthn class form-check-input");
+            //    console.log(value2);
+            //    console.log("tupes ?");
+            //    console.log(typeof(value2));
+            //});
+            $("#Supplier_ActiveSupplier.form-check-input.check-box").click(function () {
+                var value2 = $(this).val();
+                //var value2 = $(this).children().val();
+                console.log("sthn Html.EditFor sthn class form-check-input");
+                console.log(value2);
+                console.log("tupes ?");
+                console.log(typeof(value2));
+            });
+        });
+        //$(function () {
+        //    $(".test").click(function () {
+        //        var timh = $(this).parent().next().children().first();
+        //        var productQ = timh.val(parseInt(timh.val()) - 1);
+        //        var value = productQ.val();
+        //        console.log(value);
+        //    });
+        //});
+    });
+</script>

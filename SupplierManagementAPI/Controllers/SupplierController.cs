@@ -40,6 +40,7 @@ namespace SupplierManagementAPI.Controllers
             db.SaveChanges();
             return CreatedAtRoute("DefaultApi", new { id = supplier.ID }, supplier);
         }
+        //update supplier
         [ResponseType(typeof(void))]
         public IHttpActionResult PutSupplier(int id, Supplier supplier)
         {
@@ -47,11 +48,10 @@ namespace SupplierManagementAPI.Controllers
             {
                 return BadRequest();
             }
-            //sto mvc an einai modified dld an exoun ginei allages
-            //db.Entry(supplier).State = EntityState.Modified;
-
+            db.Entry(supplier).State = EntityState.Modified;
             try
             {
+                var a = supplier;
                 db.SaveChanges();
             }
             catch (DbUpdateConcurrencyException)
@@ -67,6 +67,21 @@ namespace SupplierManagementAPI.Controllers
             }
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+        //Delete Supplier
+        [ResponseType(typeof(Supplier))]
+        public IHttpActionResult DeleteSupplier(int id)
+        {
+            Supplier supplier = db.Suppliers.Find(id);
+            if (supplier == null)
+            {
+                return NotFound();
+            }
+
+            db.Suppliers.Remove(supplier);
+            db.SaveChanges();
+
+            return Ok(supplier);
         }
         private bool SupplierExists(int id)
         {

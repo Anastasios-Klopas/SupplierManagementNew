@@ -16,7 +16,7 @@ namespace SupplierManagementMVC.Models
         [Required]
         [AfmValidation]
         [Display(Name = "A.F.M.")]
-        public int Afm { get; set; }
+        public int? Afm { get; set; }
         [StringLength(100, MinimumLength = 5, ErrorMessage = "The Address should be between 5 to 100 characters.")]
         public string Address { get; set; }
         [Required]

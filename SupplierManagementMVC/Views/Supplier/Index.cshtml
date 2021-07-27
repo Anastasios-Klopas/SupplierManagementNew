@@ -4,85 +4,94 @@
     ViewBag.Title = "Index";
 }
 <br />
-<h2>Suppliers</h2>
 
-@*<p>
-        @Html.ActionLink("Add Supplier", "CreateSupplier")
-    </p>*@
-<p>
-    <a href="@Url.Action("CreateSupplier","Supplier")" class="btn btn-primary">Create</a>
-</p>
+<div class="container">
+    <h2>Suppliers</h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.SupplierName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Afm)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telephone)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ActiveSupplier)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SupplierCountry.CountryName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SupplierCategory.CategoryName)
-            </th>
-            <th></th>
-        </tr>
+    <div class="row">
+        <div class="col-12" style="align-items:center;">
 
-    </thead>
-
-    @foreach (var item in Model)
-    {
-        <tbody>
+            @using (Html.BeginForm("Index", "Supplier", FormMethod.Get))
+            {
+                <h5>
+                    Supplier Category :@Html.DropDownList("supplierCategory", "All")
+                    <input cursor:pointer;" type="submit" value="Submit" class="btn btn-dark" />
+                    | @Html.ActionLink("Back to List", "Index")
+                </h5>
+            }
+        </div>
+    </div>
+    <br />
+    <p>
+        <a href="@Url.Action("CreateSupplier","Supplier")" class="btn btn-primary">Create</a>
+    </p>
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SupplierName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Afm)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Address)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Telephone)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ActiveSupplier)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SupplierCategory.CategoryName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SupplierCountry.CountryName)
-                </td>
-
-
-
-                @*dn leitourgei h edit details delete*@
-                <td>
-                    @Html.ActionLink("Edit", "EditSupplier", new { id = item.ID }) |
-                    @Html.ActionLink("Details", "SupplierDetails", new { id = item.ID }) |
-                    @*@Html.ActionLink("Delete", "Delete", new { id = item.ID })*@
-                </td>
+                <th>
+                    @Html.DisplayNameFor(model => model.SupplierName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Afm)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Address)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Telephone)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ActiveSupplier)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SupplierCountry.CountryName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SupplierCategory.CategoryName)
+                </th>
+                <th></th>
             </tr>
-        </tbody>
-    }
-</table>
+
+        </thead>
+
+        @foreach (var item in Model)
+        {
+            <tbody>
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SupplierName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Afm)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Address)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Telephone)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ActiveSupplier)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SupplierCategory.CategoryName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SupplierCountry.CountryName)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "EditSupplier", new { id = item.ID }) |
+                        @Html.ActionLink("Details", "SupplierDetails", new { id = item.ID }) |
+                        @Html.ActionLink("Delete", "DeleteSupplier", new { id = item.ID })
+                    </td>
+                </tr>
+            </tbody>
+        }
+    </table>
+</div>
