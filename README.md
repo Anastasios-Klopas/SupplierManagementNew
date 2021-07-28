@@ -4,7 +4,7 @@ Projects Supplier Management Api and MVC
 The project was implemented using 2 projects in the SupplierManagementNEW solution.
 
 In the 1st project SupplierManagementAPI a Cotroller was created named Supplier to accept the
-REST calls tangible 2nd project and store valuable information in the database.
+REST calls from 2nd project and store valuable information in the database.
 The base association with the 1st project via EntityFramewotk and connectionstring in Web.config.
 Finally in Web.config there are the necessary conditions for sending Email when you create
 a Supplier.
