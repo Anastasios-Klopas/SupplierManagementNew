@@ -21,6 +21,7 @@
             }
         </div>
     </div>
+
     <br />
     <p>
         <a href="@Url.Action("CreateSupplier","Supplier")" class="btn btn-primary">Create</a>
@@ -65,7 +66,10 @@
                         @Html.DisplayFor(modelItem => item.SupplierName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Afm)
+                        @{
+                            string afmNew = string.Format("{0:000000000}", item.Afm);
+                        }
+                        @Html.DisplayFor(modelItem => afmNew)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Email)
@@ -95,3 +99,4 @@
         }
     </table>
 </div>
+

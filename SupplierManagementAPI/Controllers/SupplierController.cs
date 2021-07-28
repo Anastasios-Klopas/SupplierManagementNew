@@ -10,6 +10,8 @@ using System.Data.Entity;
 using System.Web.Http.Description;
 using System.Data.Entity.Infrastructure;
 using System.Net.Mail;
+using System.Web;
+using System.Threading.Tasks;
 
 namespace SupplierManagementAPI.Controllers
 {
@@ -19,88 +21,137 @@ namespace SupplierManagementAPI.Controllers
         // all suppliers
         public IQueryable<Supplier> GetAllSuppliers()
         {
-            return db.Suppliers.Include(s => s.SupplierCategory).Include(sup => sup.SupplierCountry);
+            try
+            {
+                return db.Suppliers.Include(s => s.SupplierCategory).Include(sup => sup.SupplierCountry);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         // supplier details
         [ResponseType(typeof(Supplier))]
         public IHttpActionResult GetSupplier(int id)
         {
-            Supplier supplier = db.Suppliers.Find(id);
-            if (supplier == null)
+            try
             {
-                return NotFound();
-            }
+                Supplier supplier = db.Suppliers.Find(id);
+                if (supplier == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(supplier);
+                return Ok(supplier);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         //create supplier
         [ResponseType(typeof(Supplier))]
         public IHttpActionResult PostSupplier(Supplier supplier)
         {
-            db.Suppliers.Add(supplier);
-            db.SaveChanges();
-            WelcomeEmail(supplier.SupplierName, supplier.Email);
-            return CreatedAtRoute("DefaultApi", new { id = supplier.ID }, supplier);
+            try
+            {
+                db.Suppliers.Add(supplier);
+                db.SaveChanges();
+                //Welcome Email
+                //WelcomeEmail(supplier.SupplierName, supplier.Email);
+                return CreatedAtRoute("DefaultApi", new { id = supplier.ID }, supplier);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         //update supplier
         [ResponseType(typeof(void))]
         public IHttpActionResult PutSupplier(int id, Supplier supplier)
         {
-            if (id != supplier.ID)
-            {
-                return BadRequest();
-            }
-            db.Entry(supplier).State = EntityState.Modified;
             try
             {
-                var a = supplier;
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SupplierExists(id))
+                if (id != supplier.ID)
                 {
-                    return NotFound();
+                    return BadRequest();
                 }
-                else
+                db.Entry(supplier).State = EntityState.Modified;
+                try
                 {
-                    throw;
+                    var a = supplier;
+                    db.SaveChanges();
                 }
-            }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!SupplierExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
 
-            return StatusCode(HttpStatusCode.NoContent);
+                return StatusCode(HttpStatusCode.NoContent);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         //Delete Supplier
         [ResponseType(typeof(Supplier))]
         public IHttpActionResult DeleteSupplier(int id)
         {
-            Supplier supplier = db.Suppliers.Find(id);
-            if (supplier == null)
+            try
             {
-                return NotFound();
+                Supplier supplier = db.Suppliers.Find(id);
+                if (supplier == null)
+                {
+                    return NotFound();
+                }
+
+                db.Suppliers.Remove(supplier);
+                db.SaveChanges();
+
+                return Ok(supplier);
             }
-
-            db.Suppliers.Remove(supplier);
-            db.SaveChanges();
-
-            return Ok(supplier);
+            catch (Exception)
+            {
+                throw;
+            }
         }
         private bool SupplierExists(int id)
         {
-            return db.Suppliers.Count(e => e.ID == id) > 0;
+            try
+            {
+                return db.Suppliers.Count(e => e.ID == id) > 0;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
         protected override void Dispose(bool disposing)
         {
             db.Dispose();
         }
-        public static void WelcomeEmail(string supplierName,string supplierEmail)
+        public static void WelcomeEmail(string supplierName, string supplierEmail)
         {
-            MailMessage mailMessage = new MailMessage("", supplierEmail);
-            mailMessage.Subject = "Welcome to our Company";
-            mailMessage.Body = $"Welcome to our Company Mr/Mrs {supplierName}, we look forward to having a good cooperation";
-            SmtpClient client = new SmtpClient();
-            var a = client.Credentials;
-            client.Send(mailMessage);
+            try
+            {
+                MailMessage mailMessage = new MailMessage("", supplierEmail);
+                mailMessage.Subject = "Welcome to our Company";
+                mailMessage.Body = $"Welcome to our Company {supplierName}, we look forward to having a good cooperation";
+                SmtpClient client = new SmtpClient();
+                client.Send(mailMessage);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

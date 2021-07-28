@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -12,54 +13,79 @@ namespace SupplierManagementMVC.Controllers
     public class SupplierController : Controller
     {
         // GET: Supplier
-        public ActionResult Index(string supplierCategory)
+        public async Task<ActionResult> Index(string supplierCategory)
         {
-            HttpResponseMessage responce = CallsFromApi.client.GetAsync("Supplier").Result;
-            IEnumerable<Supplier> suppliers = responce.Content.ReadAsAsync<IEnumerable<Supplier>>().Result;
-
-            HttpResponseMessage responceCategory = CallsFromApi.client.GetAsync("SupplierCategory").Result;
-            IEnumerable<SupplierCategory> supplierCategories = responceCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>().Result;
-
-            HttpResponseMessage responceCountry = CallsFromApi.client.GetAsync("SupplierCountry").Result;
-            IEnumerable<SupplierCountry> supplierCountries = responceCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>().Result;
-
-            var supplierCategoryFilter = new List<string>();
-            var supplierCategoryDb = supplierCategories.OrderByDescending(s => s.CategoryName).Select(sup => sup.CategoryName);
-            supplierCategoryFilter.AddRange(supplierCategoryDb.Distinct());
-            ViewBag.supplierCategory = new SelectList(supplierCategoryFilter);
-
-            if (!string.IsNullOrEmpty(supplierCategory))
+            try
             {
-                suppliers = suppliers.Where(s => s.SupplierCategory.CategoryName == supplierCategory);
+                HttpResponseMessage response = await CallsFromApi.client.GetAsync("Supplier");
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<Supplier> suppliers = await response.Content.ReadAsAsync<IEnumerable<Supplier>>();
+
+                HttpResponseMessage responseCategory = await CallsFromApi.client.GetAsync("SupplierCategory");
+                if (responseCategory.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCategory.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCategory> supplierCategories = await responseCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>();
+
+                var supplierCategoryFilter = new List<string>();
+                var supplierCategoryDb = supplierCategories.OrderByDescending(s => s.CategoryName).Select(sup => sup.CategoryName);
+                supplierCategoryFilter.AddRange(supplierCategoryDb.Distinct());
+                ViewBag.supplierCategory = new SelectList(supplierCategoryFilter);
+
+                if (!string.IsNullOrEmpty(supplierCategory))
+                {
+                    suppliers = suppliers.Where(s => s.SupplierCategory.CategoryName == supplierCategory);
+                }
+
+                return View(suppliers);
             }
-            return View(suppliers);
-        }
-        public ActionResult CreateSupplier()
-        {
-            HttpResponseMessage responceCategory = CallsFromApi.client.GetAsync("SupplierCategory").Result;
-            IEnumerable<SupplierCategory> supplierCategories = responceCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>().Result;
-            HttpResponseMessage responceCountry = CallsFromApi.client.GetAsync("SupplierCountry").Result;
-            IEnumerable<SupplierCountry> supplierCountries = responceCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>().Result;
-            var supplierCategoriesNew = supplierCategories;
-            var supplierCountriesNew = supplierCountries;
-            var viewModel = new SupplierCategoryCountryViewModel()
+            catch (HttpException ex)
             {
-                Supplier = new Supplier(),
-                SupplierCategories = supplierCategoriesNew,
-                SupplierCountries = supplierCountriesNew
-            };
-            return View("CreateSupplierForm", viewModel);
-            //return View();
-        }
-        [HttpPost]
-        public ActionResult SaveSupplier(Supplier supplier)
-        {
-            if (!ModelState.IsValid)
+                ViewBag.Message = ex.ErrorCode;
+
+                return View("Error");
+            }
+            catch (Exception ex)
             {
-                HttpResponseMessage responceCategory = CallsFromApi.client.GetAsync("SupplierCategory").Result;
-                IEnumerable<SupplierCategory> supplierCategories = responceCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>().Result;
-                HttpResponseMessage responceCountry = CallsFromApi.client.GetAsync("SupplierCountry").Result;
-                IEnumerable<SupplierCountry> supplierCountries = responceCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>().Result;
+                ViewBag.Message = ex.InnerException.Message;
+
+                return View("Error");
+            }
+        }
+        public async Task<ActionResult> CreateSupplier()
+        {
+            try
+            {
+                HttpResponseMessage responseCategory = await CallsFromApi.client.GetAsync("SupplierCategory");
+                if (responseCategory.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCategory.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCategory> supplierCategories = await responseCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>();
+
+                HttpResponseMessage responseCountry = await CallsFromApi.client.GetAsync("SupplierCountry");
+                if (responseCountry.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCountry.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCountry> supplierCountries = await responseCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>();
+
                 var supplierCategoriesNew = supplierCategories;
                 var supplierCountriesNew = supplierCountries;
                 var viewModel = new SupplierCategoryCountryViewModel()
@@ -68,101 +94,355 @@ namespace SupplierManagementMVC.Controllers
                     SupplierCategories = supplierCategoriesNew,
                     SupplierCountries = supplierCountriesNew
                 };
+
                 return View("CreateSupplierForm", viewModel);
             }
-            else
+            catch (HttpException ex)
             {
-                HttpResponseMessage response = CallsFromApi.client.PostAsJsonAsync("Supplier", supplier).Result;
-                return RedirectToAction("Index", "Supplier");
+                ViewBag.Message = ex.ErrorCode;
+
+                return View("Error");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.InnerException.Message;
+
+                return View("Error");
             }
         }
-        public ActionResult SupplierDetails(int id)
-        {
-            HttpResponseMessage response = CallsFromApi.client.GetAsync($"Supplier/{id}").Result;
-            Supplier supplier = response.Content.ReadAsAsync<Supplier>().Result;
-            HttpResponseMessage responceCategory = CallsFromApi.client.GetAsync("SupplierCategory").Result;
-            IEnumerable<SupplierCategory> supplierCategories = responceCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>().Result;
-            HttpResponseMessage responceCountry = CallsFromApi.client.GetAsync("SupplierCountry").Result;
-            IEnumerable<SupplierCountry> supplierCountries = responceCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>().Result;
-            var supplierCategoriesNew = supplierCategories;
-            var supplierCountriesNew = supplierCountries;
-            var viewModel = new SupplierCategoryCountryViewModel()
-            {
-                Supplier = supplier,
-                SupplierCategories = supplierCategoriesNew,
-                SupplierCountries = supplierCountriesNew
-            };
-            return View("SupplierDetails",viewModel);
-        }
-        public ActionResult EditSupplier(int id)
-        {
-            HttpResponseMessage response = CallsFromApi.client.GetAsync($"Supplier/{id}").Result;
-            Supplier supplier = response.Content.ReadAsAsync<Supplier>().Result;
-            HttpResponseMessage responceCategory = CallsFromApi.client.GetAsync("SupplierCategory").Result;
-            IEnumerable<SupplierCategory> supplierCategories = responceCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>().Result;
-            HttpResponseMessage responceCountry = CallsFromApi.client.GetAsync("SupplierCountry").Result;
-            IEnumerable<SupplierCountry> supplierCountries = responceCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>().Result;
-            var supplierCategoriesNew = supplierCategories;
-            var supplierCountriesNew = supplierCountries;
-            var viewModel = new SupplierCategoryCountryViewModel()
-            {
-                Supplier = supplier,
-                SupplierCategories = supplierCategoriesNew,
-                SupplierCountries = supplierCountriesNew
-            };
-            return View("EditSupplier", viewModel);
-        }
         [HttpPost]
-        public ActionResult SaveEditSupplier(Supplier supplier)
+        public async Task<ActionResult> SaveSupplier(Supplier supplier)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                HttpResponseMessage responceCategory = CallsFromApi.client.GetAsync("SupplierCategory").Result;
-                IEnumerable<SupplierCategory> supplierCategories = responceCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>().Result;
-                HttpResponseMessage responceCountry = CallsFromApi.client.GetAsync("SupplierCountry").Result;
-                IEnumerable<SupplierCountry> supplierCountries = responceCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>().Result;
+                if (!ModelState.IsValid)
+                {
+                    HttpResponseMessage responseCategory = await CallsFromApi.client.GetAsync("SupplierCategory");
+                    if (responseCategory.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        string errorMessage = await responseCategory.Content.ReadAsStringAsync();
+                        ViewBag.Message = errorMessage;
+
+                        return View("Error");
+                    }
+                    IEnumerable<SupplierCategory> supplierCategories = await responseCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>();
+
+                    HttpResponseMessage responseCountry = await CallsFromApi.client.GetAsync("SupplierCountry");
+                    if (responseCountry.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        string errorMessage = await responseCountry.Content.ReadAsStringAsync();
+                        ViewBag.Message = errorMessage;
+
+                        return View("Error");
+                    }
+                    IEnumerable<SupplierCountry> supplierCountries = await responseCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>();
+
+                    var supplierCategoriesNew = supplierCategories;
+                    var supplierCountriesNew = supplierCountries;
+                    var viewModel = new SupplierCategoryCountryViewModel()
+                    {
+                        Supplier = new Supplier(),
+                        SupplierCategories = supplierCategoriesNew,
+                        SupplierCountries = supplierCountriesNew
+                    };
+
+                    return View("CreateSupplierForm", viewModel);
+                }
+                HttpResponseMessage response = await CallsFromApi.client.PostAsJsonAsync("Supplier", supplier);
+                if (response.StatusCode != System.Net.HttpStatusCode.Created)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+
+                return RedirectToAction("Index", "Supplier");
+            }
+            catch (HttpException ex)
+            {
+                ViewBag.Message = ex.ErrorCode;
+
+                return View("Error");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.InnerException.Message;
+
+                return View("Error");
+            }
+
+        }
+        public async Task<ActionResult> SupplierDetails(int id)
+        {
+            try
+            {
+                HttpResponseMessage response = await CallsFromApi.client.GetAsync($"Supplier/{id}");
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                Supplier supplier = await response.Content.ReadAsAsync<Supplier>();
+
+                HttpResponseMessage responseCategory = await CallsFromApi.client.GetAsync("SupplierCategory");
+                if (responseCategory.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCategory.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCategory> supplierCategories = await responseCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>();
+
+                HttpResponseMessage responseCountry = await CallsFromApi.client.GetAsync("SupplierCountry");
+                if (responseCountry.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCountry.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCountry> supplierCountries = await responseCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>();
+
                 var supplierCategoriesNew = supplierCategories;
                 var supplierCountriesNew = supplierCountries;
                 var viewModel = new SupplierCategoryCountryViewModel()
                 {
-                    Supplier = new Supplier(),
+                    Supplier = supplier,
                     SupplierCategories = supplierCategoriesNew,
                     SupplierCountries = supplierCountriesNew
                 };
+
+                return View("SupplierDetails", viewModel);
+            }
+            catch (HttpException ex)
+            {
+                ViewBag.Message = ex.ErrorCode;
+
+                return View("Error");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.InnerException.Message;
+
+                return View("Error");
+            }
+
+        }
+        public async Task<ActionResult> EditSupplier(int id)
+        {
+            try
+            {
+                var a = id;
+                HttpResponseMessage response = await CallsFromApi.client.GetAsync($"Supplier/{id}");
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                Supplier supplier = await response.Content.ReadAsAsync<Supplier>();
+
+                HttpResponseMessage responseCategory = await CallsFromApi.client.GetAsync("SupplierCategory");
+                if (responseCategory.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCategory.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCategory> supplierCategories = await responseCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>();
+
+                HttpResponseMessage responseCountry = await CallsFromApi.client.GetAsync("SupplierCountry");
+                if (responseCountry.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCountry.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCountry> supplierCountries = await responseCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>();
+
+                var supplierCategoriesNew = supplierCategories;
+                var supplierCountriesNew = supplierCountries;
+                var viewModel = new SupplierCategoryCountryViewModel()
+                {
+                    Supplier = supplier,
+                    SupplierCategories = supplierCategoriesNew,
+                    SupplierCountries = supplierCountriesNew
+                };
+
                 return View("EditSupplier", viewModel);
             }
-            else
+            catch (HttpException ex)
             {
-                HttpResponseMessage response = CallsFromApi.client.PutAsJsonAsync($"Supplier/{supplier.ID}", supplier).Result;
+                ViewBag.Message = ex.ErrorCode;
+
+                return View("Error");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.InnerException.Message;
+
+                return View("Error");
+            }
+        }
+        [HttpPost]
+        public async Task<ActionResult> SaveEditSupplier(Supplier supplier)
+        {
+            try
+            {
+                var b = supplier.ID;
+                var a = ModelState.IsValid;
+                if (!ModelState.IsValid)
+                {
+                    HttpResponseMessage responseCategory = await CallsFromApi.client.GetAsync("SupplierCategory");
+                    if (responseCategory.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        string errorMessage = await responseCategory.Content.ReadAsStringAsync();
+                        ViewBag.Message = errorMessage;
+
+                        return View("Error");
+                    }
+                    IEnumerable<SupplierCategory> supplierCategories = await responseCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>();
+
+                    HttpResponseMessage responseCountry = await CallsFromApi.client.GetAsync("SupplierCountry");
+                    if (responseCountry.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        string errorMessage = await responseCountry.Content.ReadAsStringAsync();
+                        ViewBag.Message = errorMessage;
+
+                        return View("Error");
+                    }
+                    IEnumerable<SupplierCountry> supplierCountries = await responseCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>();
+
+                    var supplierCategoriesNew = supplierCategories;
+                    var supplierCountriesNew = supplierCountries;
+                    var viewModel = new SupplierCategoryCountryViewModel()
+                    {
+                        Supplier = new Supplier(),
+                        SupplierCategories = supplierCategoriesNew,
+                        SupplierCountries = supplierCountriesNew
+                    };
+
+                    return View("EditSupplier", viewModel);
+                }
+
+                HttpResponseMessage response = await CallsFromApi.client.PutAsJsonAsync($"Supplier/{supplier.ID}", supplier);
+                if (response.StatusCode != System.Net.HttpStatusCode.NoContent)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+
                 return RedirectToAction("Index", "Supplier");
+            }
+            catch (HttpException ex)
+            {
+                ViewBag.Message = ex.ErrorCode;
+
+                return View("Error");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.InnerException.Message;
+
+                return View("Error");
             }
         }
         //Delete supplier request to api
-        public ActionResult DeleteSupplier(int? id)
+        public async Task<ActionResult> DeleteSupplier(int? id)
         {
-
-            HttpResponseMessage response = CallsFromApi.client.GetAsync($"Supplier/{id}").Result;
-            Supplier supplier = response.Content.ReadAsAsync<Supplier>().Result;
-            HttpResponseMessage responceCategory = CallsFromApi.client.GetAsync("SupplierCategory").Result;
-            IEnumerable<SupplierCategory> supplierCategories = responceCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>().Result;
-            HttpResponseMessage responceCountry = CallsFromApi.client.GetAsync("SupplierCountry").Result;
-            IEnumerable<SupplierCountry> supplierCountries = responceCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>().Result;
-            var supplierCategoriesNew = supplierCategories;
-            var supplierCountriesNew = supplierCountries;
-            var viewModel = new SupplierCategoryCountryViewModel()
+            try
             {
-                Supplier = supplier,
-                SupplierCategories = supplierCategoriesNew,
-                SupplierCountries = supplierCountriesNew
-            };
-            return View(viewModel);
+                HttpResponseMessage response = await CallsFromApi.client.GetAsync($"Supplier/{id}");
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                Supplier supplier = await response.Content.ReadAsAsync<Supplier>();
+
+                HttpResponseMessage responseCategory = await CallsFromApi.client.GetAsync("SupplierCategory");
+                if (responseCategory.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCategory.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCategory> supplierCategories = await responseCategory.Content.ReadAsAsync<IEnumerable<SupplierCategory>>();
+
+                HttpResponseMessage responseCountry = await CallsFromApi.client.GetAsync("SupplierCountry");
+                if (responseCountry.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await responseCountry.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                IEnumerable<SupplierCountry> supplierCountries = await responseCountry.Content.ReadAsAsync<IEnumerable<SupplierCountry>>();
+
+                var supplierCategoriesNew = supplierCategories;
+                var supplierCountriesNew = supplierCountries;
+                var viewModel = new SupplierCategoryCountryViewModel()
+                {
+                    Supplier = supplier,
+                    SupplierCategories = supplierCategoriesNew,
+                    SupplierCountries = supplierCountriesNew
+                };
+
+                return View(viewModel);
+            }
+            catch (HttpException ex)
+            {
+                ViewBag.Message = ex.ErrorCode;
+
+                return View("Error");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.InnerException.Message;
+
+                return View("Error");
+            }
         }
-        [HttpPost,ActionName("DeleteSupplier")]
+        [HttpPost, ActionName("DeleteSupplier")]
         [ValidateAntiForgeryToken]
-        public ActionResult ConfirmationForDelete(int id)
+        public async Task<ActionResult> ConfirmationForDelete(int id)
         {
-            HttpResponseMessage response = CallsFromApi.client.DeleteAsync($"Supplier/{id}").Result;
-            return RedirectToAction("Index", "Supplier");
+            try
+            {
+                HttpResponseMessage response = await CallsFromApi.client.DeleteAsync($"Supplier/{id}");
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    string errorMessage = await response.Content.ReadAsStringAsync();
+                    ViewBag.Message = errorMessage;
+
+                    return View("Error");
+                }
+                return RedirectToAction("Index", "Supplier");
+            }
+            catch (HttpException ex)
+            {
+                ViewBag.Message = ex.ErrorCode;
+
+                return View("Error");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.InnerException.Message;
+
+                return View("Error");
+            }
         }
     }
 }

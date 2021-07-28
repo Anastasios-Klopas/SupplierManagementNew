@@ -165,7 +165,6 @@
     <Compile Include="Controllers\SupplierCategoryController.cs" />
     <Compile Include="Controllers\SupplierController.cs" />
     <Compile Include="Controllers\SupplierCountryController.cs" />
-    <Compile Include="Controllers\SuppliersV2Controller.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="DAL\SupplierManagementDbContext.cs" />
     <Compile Include="Global.asax.cs">
