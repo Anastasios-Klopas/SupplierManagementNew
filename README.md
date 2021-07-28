@@ -19,16 +19,6 @@ to change the connectionstring in Web.config to migrate and update database.
 Then we open the SupplierManagementMVC where the user interacts with the application.
 (The SupplierManagementAPI project tab must remain open).
 
-Front End :
--JavaScript
--jQuery
--Bootstrap
--Razor
+Front End : JavaScript, jQuery, Bootstrap, Razor
 
-Back End:
--C#
--SQL
--.NET MVC
--Entity Framework
--LINQ
--Web API Client
+Back End: C#, SQL, .NET MVC, Entity Framework, LINQ, Web API Client
