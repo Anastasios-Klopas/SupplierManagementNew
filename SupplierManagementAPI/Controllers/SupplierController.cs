@@ -58,7 +58,7 @@ namespace SupplierManagementAPI.Controllers
                 db.Suppliers.Add(supplier);
                 db.SaveChanges();
                 //Welcome Email
-                //WelcomeEmail(supplier.SupplierName, supplier.Email);
+                WelcomeEmail(supplier.SupplierName, supplier.Email);
                 return CreatedAtRoute("DefaultApi", new { id = supplier.ID }, supplier);
             }
             catch (Exception)
@@ -138,6 +138,8 @@ namespace SupplierManagementAPI.Controllers
         {
             db.Dispose();
         }
+
+
         public static void WelcomeEmail(string supplierName, string supplierEmail)
         {
             try
